@@ -8,8 +8,9 @@ use yii\web\Controller;
 use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
+use app\models\SignupForm;
+use app\models\PaymentForm;
 use app\models\ContactForm;
-
 class SiteController extends Controller
 {
     /**
@@ -27,6 +28,7 @@ class SiteController extends Controller
                         'allow' => true,
                         'roles' => ['@'],
                     ],
+                    
                 ],
             ],
             'verbs' => [
@@ -54,21 +56,8 @@ class SiteController extends Controller
         ];
     }
 
-    /**
-     * Displays homepage.
-     *
-     * @return string
-     */
-    public function actionIndex()
-    {
-        return $this->render('index');
-    }
-
-    /**
-     * Login action.
-     *
-     * @return Response|string
-     */
+   
+    
     public function actionLogin()
     {
         if (!Yii::$app->user->isGuest) {
@@ -98,6 +87,25 @@ class SiteController extends Controller
         return $this->goHome();
     }
 
+    public function actionSignup()
+    {
+        $model = new SignupForm();
+        if ($model->load(Yii::$app->request->post()) && $model->signup()) {
+            Yii::$app->session->setFlash('success', 'Спасибо за регистрацию на нашем сайте. Проверьте почту');
+            return $this->goHome();
+        }
+
+        return $this->render('signup', [
+            'model' => $model,
+        ]);
+    }
+    
+    public function actionIndex()
+    {
+        return $this->render('index');
+
+        
+    }
     /**
      * Displays contact page.
      *
@@ -105,15 +113,7 @@ class SiteController extends Controller
      */
     public function actionContact()
     {
-        $model = new ContactForm();
-        if ($model->load(Yii::$app->request->post()) && $model->contact(Yii::$app->params['adminEmail'])) {
-            Yii::$app->session->setFlash('contactFormSubmitted');
-
-            return $this->refresh();
-        }
-        return $this->render('contact', [
-            'model' => $model,
-        ]);
+        
     }
 
     /**
@@ -121,8 +121,13 @@ class SiteController extends Controller
      *
      * @return string
      */
-    public function actionAbout()
+    public function actionBooks()
     {
-        return $this->render('about');
+        return $this->render(['books/index', "model" => $this->model]);
+    }
+
+    public function actionAuthors()
+    {
+        return $this->render('authors/index');
     }
 }
